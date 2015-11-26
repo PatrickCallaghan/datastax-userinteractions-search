@@ -44,8 +44,8 @@ public class Main {
     		
     		repository.save(createRandomUserInteraction(noOfUsers));
     		
-    		if (i%10000 ==0){
-    			logger.info("Processed " + i + " users visits.");
+    		if ((i+1)%10000 ==0){
+    			logger.info("Processed " + (i+1) + " users visits.");
     		}
     	}
 	}
