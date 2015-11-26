@@ -25,7 +25,7 @@ Note : This will drop the keyspace "datastax_user_interactions_demo" and create 
 
 The schema can be found in src/main/resources/cql/
 
-Once the schema is create, create the Solr core for it using dsetool.
+Once the schema is created, create the Solr core for it using dsetool.
 
 	dsetool create_core datastax_user_interactions_demo.user_interaction generateResources=true
 
