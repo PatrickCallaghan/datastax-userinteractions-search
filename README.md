@@ -18,8 +18,7 @@ Get all interactions of type 'Login' within the last 10 minutes sorted in descen
 Get all interactions where the clientid is 'mobilefx' and the browser agent contains 'OS' within the last day sorted in descending date order
 
 DSE must be running in Search mode as we will be using DSE's Solr Integration to do the searching.
-
-	http://docs.datastax.com/en/datastax_enterprise/4.8/datastax_enterprise/srch/srchInstall.html
+http://docs.datastax.com/en/datastax_enterprise/4.8/datastax_enterprise/srch/srchInstall.html
 
 ## Schema Setup
 Note : This will drop the keyspace "datastax_user_interactions_demo" and create a new one. All existing data will be lost. The keyspace is set up to only use one data center.  
@@ -31,8 +30,7 @@ Once the schema is create, create the Solr core for it using dsetool.
 	dsetool create_core datastax_user_interactions_demo.user_interaction generateResources=true
 
 This project is setup to use Spring Data Cassandra 
-	
-	http://docs.spring.io/spring-data/cassandra/docs/1.3.1.RELEASE/reference/html/#get-started.up-to-date
+http://docs.spring.io/spring-data/cassandra/docs/1.3.1.RELEASE/reference/html/#get-started.up-to-date
 
 To specify contact points use the contactPoints command line parameter e.g. '-DcontactPoints=192.168.25.100,192.168.25.101'
 The contact points can take mulitple points in the IP,IP,IP (no spaces).
