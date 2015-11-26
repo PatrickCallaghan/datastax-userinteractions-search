@@ -40,6 +40,8 @@ public class Main {
     	int noOfUsers = Integer.parseInt(PropertyHelper.getProperty("noOfUsers", NO_OF_USERS));
     	int noOfVisits = Integer.parseInt(PropertyHelper.getProperty("noOfVisits", USER_VISITS));
     	
+    	logger.info ("Starting to process "+noOfVisits+" visits.");
+    	
     	for (int i = 0; i < noOfVisits; i++){
     		
     		repository.save(createRandomUserInteraction(noOfUsers));
@@ -48,6 +50,8 @@ public class Main {
     			logger.info("Processed " + (i+1) + " users visits.");
     		}
     	}
+    	
+    	System.exit(0);
 	}
 
 	private List<UserInteraction> createRandomUserInteraction(int noOfUsers) {
