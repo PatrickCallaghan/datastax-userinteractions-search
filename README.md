@@ -41,6 +41,10 @@ To run the insert
 
 	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main"
 	
+The default runs 10,000 distinct visits (login,event*,logout). To change this use -noOfVisits=   eg
+	
+	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main" -noOfVisits=30000
+	
 Now we can query data using the Solr Admin interface at 
 http://localhost:8983/solr/#/datastax_user_interactions_demo.user_interaction/query
 Or we can use the following cql in cqlsh

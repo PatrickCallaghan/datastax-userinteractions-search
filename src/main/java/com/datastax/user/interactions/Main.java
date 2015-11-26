@@ -14,13 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
+import com.datastax.demo.utils.PropertyHelper;
 import com.datastax.user.interactions.dao.UserRepository;
 import com.datastax.user.interactions.model.UserInteraction;
 
 public class Main {
 
-	private static final int USER_VISITS = 1000000;
-	private static final int NO_OF_USERS = 100000;
+	private static final String USER_VISITS = "10000";
+	private static final String NO_OF_USERS = "100000";
 
 	private UserRepository repository;
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
@@ -36,10 +37,12 @@ public class Main {
     	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new ClassPathResource("spring-context.xml").getPath());
     	repository = context.getBean(UserRepository.class);
     	
-    	for (int i = 0; i < USER_VISITS; i++){
+    	int noOfUsers = Integer.parseInt(PropertyHelper.getProperty("noOfUsers", NO_OF_USERS));
+    	int noOfVisits = Integer.parseInt(PropertyHelper.getProperty("noOfVisits", USER_VISITS));
+    	
+    	for (int i = 0; i < noOfVisits; i++){
     		
-    		//Creates from a pool of 1000
-    		repository.save(createRandomUserInteraction(NO_OF_USERS));
+    		repository.save(createRandomUserInteraction(noOfUsers));
     		
     		if (i%10000 ==0){
     			logger.info("Processed " + i + " users visits.");
@@ -51,7 +54,6 @@ public class Main {
 
 		List<UserInteraction> interactions = new ArrayList<UserInteraction>();
 
-		UUID id = UUID.randomUUID();
 		String user = "U" + (new Double(Math.random() * noOfUsers).intValue() + 1);
 		String app = apps.get(new Double(Math.random() * apps.size()).intValue());
 		String userAgent = userAgents.get(new Double(Math.random() * userAgents.size()).intValue());
@@ -70,12 +72,12 @@ public class Main {
 		UUID correlationId = UUID.randomUUID();
 
 		UserInteraction interaction = new UserInteraction();
+		interaction.setId(UUID.randomUUID());
 		interaction.setClientid(app);
 		interaction.setCorrelationid(correlationId.toString());
 		interaction.setDateTime(dateTime.toDate());
 		interaction.setDetails("Login");
-		interaction.setEvent_type("Login");
-		interaction.setId(UUID.randomUUID());
+		interaction.setEvent_type("Login");		
 		interaction.setReference("");
 		interaction.setUser_agent(userAgent);
 		interaction.setUserid(user);
