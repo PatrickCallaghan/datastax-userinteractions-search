@@ -23,21 +23,19 @@ http://docs.datastax.com/en/datastax_enterprise/4.8/datastax_enterprise/srch/src
 ## Schema Setup
 Note : This will drop the keyspace "datastax_user_interactions_demo" and create a new one. All existing data will be lost. The keyspace is set up to only use one data center.  
 
-The schema can be found in src/main/resources/cql/
-
-Once the schema is created, create the Solr core for it using dsetool.
-
-	dsetool create_core datastax_user_interactions_demo.user_interaction generateResources=true
-
 This project is setup to use Spring Data Cassandra 
 http://docs.spring.io/spring-data/cassandra/docs/1.3.1.RELEASE/reference/html/#get-started.up-to-date
 
 To specify contact points use the contactPoints command line parameter e.g. '-DcontactPoints=192.168.25.100,192.168.25.101'
-The contact points can take mulitple points in the IP,IP,IP (no spaces).
+The contact points can take multiple points in the IP,IP,IP (no spaces).
 
 To create the a single node cluster with replication factor of 1 for standard localhost setup, run the following
 
     mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaSetup"
+    
+Once the schema is created, create the Solr core for it using dsetool.
+
+	dsetool create_core datastax_user_interactions_demo.user_interaction generateResources=true    
     
 To run the insert
 

@@ -17,4 +17,4 @@ PRIMARY KEY (id)
 );
 
 
-truncate user_interactions;
+truncate user_interaction;
