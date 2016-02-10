@@ -41,9 +41,9 @@ To run the insert
 
 	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main"
 	
-The default runs 10,000 distinct visits (login,event*,logout). To change this use -noOfVisits=   eg
+The default runs 10,000 distinct visits (login,event*,logout). To change this use -DnoOfVisits=   eg
 	
-	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main" -noOfVisits=30000
+	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main" -DnoOfVisits=30000
 	
 Now we can query data using the Solr Admin interface at 
 http://localhost:8983/solr/#/datastax_user_interactions_demo.user_interaction/query
@@ -69,3 +69,4 @@ To remove the tables and the schema, run the following.
 
     mvn exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
 	
+# datastax-userinteractions2-search
