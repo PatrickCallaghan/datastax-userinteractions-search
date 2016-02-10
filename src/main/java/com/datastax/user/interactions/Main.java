@@ -134,7 +134,7 @@ public class Main {
 
 	private List<String> apps = Arrays.asList("mobilefx", "mobilefx", "mobilefx", "desktop ui", "tablet research",
 			"tablet research", "iphone banking", "android banking", "mobile trading");
-
+	
 	private List<String> actions = Arrays.asList("tradeview", "news", "portfolio", "p and l", "charting",
 			"advanced charting", "advanced charting", "advanced charting", "news", "news", "landing page",
 			"preferences", "tradeview", "tradeview", "tradeview", "tradeview", "tradeview");
