@@ -69,4 +69,22 @@ To remove the tables and the schema, run the following.
 
     mvn exec:java -Dexec.mainClass="com.datastax.demo.SchemaTeardown"
 	
-# datastax-userinteractions2-search
+For Spark, run the following in a spark shell to find counts of different attributes
+
+	case class UserInteraction (id: java.util.UUID, clientid: String, correlationid: String, date: java.util.Date, details: String, event_type: String, user_agent: String, user_agent_filterd: Option[String], userid: String, reference: String )
+
+	val table = sc.cassandraTable[UserInteraction]("datastax_user_interactions_demo", "user_interaction").cache;
+
+	table.count
+
+	val googleUsers = table.filter(f => f.user_agent.toLowerCase().contains("google"));
+	googleUsers.count
+
+	val logins = table.filter(f => f.event_type.toLowerCase().contains("login"));
+	logins.count	
+
+	val loginGoogle = googleUsers.filter(f => f.event_type.toLowerCase().contains("login"));
+	loginGoogle.count
+
+	val results = csc.sql("SELECT * from datastax_user_interactions_demo.user_interaction");
+
