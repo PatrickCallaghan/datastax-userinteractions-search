@@ -1,141 +1,111 @@
 package com.datastax.user.interactions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Random;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 import com.datastax.demo.utils.PropertyHelper;
-import com.datastax.user.interactions.dao.UserRepository;
-import com.datastax.user.interactions.model.UserInteraction;
+import com.datastax.user.message.model.Message;
+import com.datastax.user.messages.dao.MessageDao;
 
 public class Main {
 
-	private static final String USER_VISITS = "10000";
-	private static final String NO_OF_USERS = "100000";
+	private static final String USER_MESSAGES = "1000000";
+	private static final String NO_OF_USERS = "5000";
 
-	private UserRepository repository;
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	private DateTime dateTime = new DateTime().minusDays(20);
+	private DateTime dateTime = new DateTime().minusDays(365);
 	private Map<String, Date> userDateMap = new HashMap<String, Date>();
+	private long secondsToAdd;
 	
 	public static void main(String args[]) {
 		new Main();
     }
     
     public Main(){
-    	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new ClassPathResource("spring-context.xml").getPath());
-    	repository = context.getBean(UserRepository.class);
-    	
+		String contactPointsStr = PropertyHelper.getProperty("contactPoints", "localhost");
     	int noOfUsers = Integer.parseInt(PropertyHelper.getProperty("noOfUsers", NO_OF_USERS));
-    	int noOfVisits = Integer.parseInt(PropertyHelper.getProperty("noOfVisits", USER_VISITS));
+    	int noOfMessages = Integer.parseInt(PropertyHelper.getProperty("noOfMessages", USER_MESSAGES));
     	
-    	logger.info ("Starting to process "+noOfVisits+" visits.");
+    	MessageDao dao = new MessageDao(contactPointsStr.split(","));
     	
-    	for (int i = 0; i < noOfVisits; i++){
+    	this.secondsToAdd = 365 * 24 * 60 * 60 /noOfMessages; 
+    			
+    	logger.info ("Starting to process "+noOfMessages+" visits.");
+    	
+    	for (int i = 0; i < noOfMessages; i++){
     		
-    		repository.save(createRandomUserInteraction(noOfUsers));
+    		dao.insertMessage(createRandomMessage(noOfUsers));
     		
     		if ((i+1)%10000 ==0){
-    			logger.info("Processed " + (i+1) + " users visits.");
+    			logger.info("Processed " + (i+1) + " messages.");
+    			
+    			sleep(100);
     		}
     	}
     	
     	System.exit(0);
 	}
 
-	private List<UserInteraction> createRandomUserInteraction(int noOfUsers) {
-
-		List<UserInteraction> interactions = new ArrayList<UserInteraction>();
-
-		String user = "U" + (new Double(Math.random() * noOfUsers).intValue() + 1);
-		String app = apps.get(new Double(Math.random() * apps.size()).intValue());
-		String userAgent = userAgents.get(new Double(Math.random() * userAgents.size()).intValue());
-
-		// Need to establish a good date. now or after the user logged out of
-		// the last app they were using
-		DateTime dateTime = new DateTime();
-
-		if (userDateMap.containsKey(user)) {
-			dateTime = new DateTime(userDateMap.get(user));
-			dateTime = dateTime.plusSeconds(new Double(Math.random() * 60).intValue());
-		} else {
-			dateTime = new DateTime();
+	private void sleep(int i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-
-		UUID correlationId = UUID.randomUUID();
-
-		UserInteraction interaction = new UserInteraction();
-		interaction.setId(UUID.randomUUID());
-		interaction.setClientid(app);
-		interaction.setCorrelationid(correlationId.toString());
-		interaction.setDateTime(dateTime.toDate());
-		interaction.setDetails("Login");
-		interaction.setEvent_type("Login");		
-		interaction.setReference("");
-		interaction.setUser_agent(userAgent);
-		interaction.setUserid(user);
-
-		interactions.add(interaction);
-
-		int items = new Double(Math.random() * 50).intValue() + 1;
-
-		for (int i = 0; i < items; i++) {
-
-			dateTime = dateTime.plusSeconds(new Double(Math.random() * 60).intValue());
-
-			String action = actions.get(new Double(Math.random() * actions.size()).intValue());
-
-			interaction = new UserInteraction();
-			interaction.setClientid(app);
-			interaction.setCorrelationid(correlationId.toString());
-			interaction.setDateTime(dateTime.toDate());
-			interaction.setDetails(action);
-			interaction.setEvent_type(action);
-			interaction.setId(UUID.randomUUID());
-			interaction.setReference("");
-			interaction.setUser_agent(userAgent);
-			interaction.setUserid(user);
-
-			interactions.add(interaction);
-		}
-
-		interaction = new UserInteraction();
-		interaction.setClientid(app);
-		interaction.setCorrelationid(correlationId.toString());
-		interaction.setDateTime(dateTime.toDate());
-		interaction.setDetails("Logout");
-		interaction.setEvent_type("Logout");
-		interaction.setId(UUID.randomUUID());
-		interaction.setReference("");
-		interaction.setUser_agent(userAgent);
-		interaction.setUserid(user);
-
-		interactions.add(interaction);
-		userDateMap.put(user, dateTime.toDate());
-
-		return interactions;
+		
 	}
 
-	private List<String> userAgents = Arrays.asList(
-			"Some User Agents for OS - WindowsInternet Explorer 7 (Windows Vista)", "Safari 125.8 (MacintoshOSX)",
-			"Mozilla 1.6 (Debian)", "Googlebot 2.1 (New version)", "FireFox 2.0.0.19 (Ubuntu)",
-			"Google Chrome 0.2.149.29 (Windows XP)", "Firefox 0.9 (MacintoshOSX )");
+	private Message createRandomMessage(int noOfUsers) {
 
+		Message msg = new Message();
+		
+		int senderNo = (new Double(Math.random() * noOfUsers).intValue() + 1);
+		String sender = "U" + senderNo;
+		int sendeeNo = senderNo +  (new Double(Math.random() * 20).intValue() + 1);
+		
+		String sendee = "U" + sendeeNo;
+		
+		DateTime messageTime = dateTime.plus(secondsToAdd);
+		
+		dateTime= messageTime;
+		
+		msg.setSender(sender);
+		msg.setSendee(sendee);
+		msg.setDate(messageTime.toDate());
+		msg.setMsg(createRandomString());
+
+		return msg;
+	}
+
+	private String createRandomString() {
+		String alphabet = 
+		        new String("         0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"); 
+		int n = alphabet.length() + new Double(Math.random() * 20).intValue(); 
+
+		String result = new String(); 
+		Random r = new Random(); //11
+
+		for (int i=0; i< n; i++) //12
+		    result = result + alphabet.charAt((r.nextInt(n)%alphabet.length())); //13
+
+		if (Math.random() < .2){
+			String app = apps.get(new Double(Math.random() * apps.size()).intValue());
+			result = result + app + " blah";
+		}
+		
+
+		return result;
+	}
+	
 	private List<String> apps = Arrays.asList("mobilefx", "mobilefx", "mobilefx", "desktop ui", "tablet research",
 			"tablet research", "iphone banking", "android banking", "mobile trading");
-	
-	private List<String> actions = Arrays.asList("tradeview", "news", "portfolio", "p and l", "charting",
-			"advanced charting", "advanced charting", "advanced charting", "news", "news", "landing page",
-			"preferences", "tradeview", "tradeview", "tradeview", "tradeview", "tradeview");
 }
