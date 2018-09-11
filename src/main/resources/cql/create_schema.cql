@@ -1,14 +1,21 @@
-create keyspace if not exists datastax_demo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1' };
+create keyspace if not exists datastax WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1' };
+ 
+use datastax;
 
-use datastax_demo;
+create table if not exists user_interactions(
+id uuid,
+clientid text,
+correlationid text,
+date timestamp,
+details text,
+event_type text,
+user_agent text,
+user_agent_filterd text,
+userid text,
+reference text,
+PRIMARY KEY (id)
+);
 
-create table if not exists messages (
-	sender text,
-	sendee text, 
-	date timestamp,
-	msg  text,
-	PRIMARY KEY ((sender, sendee), date)
-) with clustering order by (date desc);
+create search index on user_interactions;
 
-
-truncate datastax_demo;
+truncate user_interactions;

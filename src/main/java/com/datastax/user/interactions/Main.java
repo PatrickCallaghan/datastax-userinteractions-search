@@ -11,11 +11,9 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 import com.datastax.demo.utils.PropertyHelper;
-import com.datastax.user.interactions.dao.UserRepository;
+import com.datastax.user.interactions.dao.UserInteractionDao;
 import com.datastax.user.interactions.model.UserInteraction;
 
 public class Main {
@@ -23,7 +21,6 @@ public class Main {
 	private static final String USER_VISITS = "10000";
 	private static final String NO_OF_USERS = "100000";
 
-	private UserRepository repository;
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private DateTime dateTime = new DateTime().minusDays(20);
@@ -34,17 +31,18 @@ public class Main {
     }
     
     public Main(){
-    	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new ClassPathResource("spring-context.xml").getPath());
-    	repository = context.getBean(UserRepository.class);
-    	
+		String contactPointsStr = PropertyHelper.getProperty("contactPoints", "localhost");
+		
+		
     	int noOfUsers = Integer.parseInt(PropertyHelper.getProperty("noOfUsers", NO_OF_USERS));
     	int noOfVisits = Integer.parseInt(PropertyHelper.getProperty("noOfVisits", USER_VISITS));
+    	UserInteractionDao dao = new UserInteractionDao(contactPointsStr.split(","));
     	
     	logger.info ("Starting to process "+noOfVisits+" visits.");
     	
     	for (int i = 0; i < noOfVisits; i++){
     		
-    		repository.save(createRandomUserInteraction(noOfUsers));
+    		dao.insertUserInteraction(createRandomUserInteraction(noOfUsers));
     		
     		if ((i+1)%10000 ==0){
     			logger.info("Processed " + (i+1) + " users visits.");

@@ -9,7 +9,7 @@ import com.datastax.driver.mapping.annotations.Table;
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 
-@Table(keyspace="datastax_demo", name="user_interaction")
+@Table(keyspace="datastax", name="user_interactions")
 public class UserInteraction {
 
 	@PartitionKey

@@ -1,4 +1,4 @@
-use datastax_user_interactions_demo;
+use datastax;
 
 truncate user_interactions;
 truncate user_interaction_counters;

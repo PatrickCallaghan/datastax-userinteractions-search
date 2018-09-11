@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
@@ -36,8 +35,6 @@ public class UserInteractionDao {
 		for (UserInteraction userInteraction : userInteractions) {
 			
 			futures.add(mapper.saveAsync(userInteraction));
-		}
-		
-		
+		}		
 	}
 }
