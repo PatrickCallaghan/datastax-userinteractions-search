@@ -61,3 +61,24 @@ For Spark, run the following in a spark shell to find counts of different attrib
 
 	val results = csc.sql("SELECT * from datastax_user_interactions_demo.user_interaction");
 
+New Queries based on session path 
+
+Find sessions that started like 
+
+	select * from datastax.session_paths where forward_path like 'Login-news-balance-preferences%';
+	
+Find sessions that ended like 
+
+	select * from datastax.session_paths where reverse_path like 'Logout-news-balance-preferences%';
+	
+Get a distinct list of all the paths in each of the sessions
+
+	select * from datastax.session_paths where solr_query='{"q":"*:*","useFieldCache":true,"facet":{"field":"forward_path"}}';
+	
+
+Using Curl we can find the distinct number of users 
+
+	curl -d "q=*:*&rows=0&useFieldCache=true&json.facet={ x:'unique(userid)' }" http://localhost:8983/solr/datastax.user_interactions/select
+	
+		
+

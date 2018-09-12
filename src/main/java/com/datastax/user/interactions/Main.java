@@ -14,16 +14,20 @@ import org.slf4j.LoggerFactory;
 
 import com.datastax.demo.utils.PropertyHelper;
 import com.datastax.user.interactions.dao.UserInteractionDao;
+import com.datastax.user.interactions.model.SessionDetails;
+import com.datastax.user.interactions.model.SessionPath;
 import com.datastax.user.interactions.model.UserInteraction;
+import com.google.common.collect.Lists;
 
 public class Main {
 
-	private static final String USER_VISITS = "10000";
+	private static final String ACTION_SEPARATOR = "-";
+	private static final String USER_VISITS = "1000000";
 	private static final String NO_OF_USERS = "100000";
 
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	private DateTime dateTime = new DateTime().minusDays(20);
+	private DateTime dateTime = new DateTime().minusDays(30);
 	private Map<String, Date> userDateMap = new HashMap<String, Date>();
 	
 	public static void main(String args[]) {
@@ -42,8 +46,10 @@ public class Main {
     	
     	for (int i = 0; i < noOfVisits; i++){
     		
-    		dao.insertUserInteraction(createRandomUserInteraction(noOfUsers));
-    		
+    		SessionDetails sessionDetails = createRandomUserInteraction(noOfUsers);
+    		dao.insertUserInteraction(sessionDetails.getInteractions());
+    		dao.insertSessionPath(sessionDetails.getSessionPath());
+    		    		
     		if ((i+1)%10000 ==0){
     			logger.info("Processed " + (i+1) + " users visits.");
     		}
@@ -52,10 +58,11 @@ public class Main {
     	System.exit(0);
 	}
 
-	private List<UserInteraction> createRandomUserInteraction(int noOfUsers) {
+	private SessionDetails createRandomUserInteraction(int noOfUsers) {
 
 		List<UserInteraction> interactions = new ArrayList<UserInteraction>();
-
+		List<String> actionPath = new ArrayList<String>();
+		
 		String user = "U" + (new Double(Math.random() * noOfUsers).intValue() + 1);
 		String app = apps.get(new Double(Math.random() * apps.size()).intValue());
 		String userAgent = userAgents.get(new Double(Math.random() * userAgents.size()).intValue());
@@ -85,14 +92,16 @@ public class Main {
 		interaction.setUserid(user);
 
 		interactions.add(interaction);
+		actionPath.add("Login");
 
-		int items = new Double(Math.random() * 50).intValue() + 1;
+		int items = new Double(Math.random() * 12).intValue() + 1;
 
 		for (int i = 0; i < items; i++) {
 
 			dateTime = dateTime.plusSeconds(new Double(Math.random() * 60).intValue());
 
-			String action = actions.get(new Double(Math.random() * actions.size()).intValue());
+			int actionIndex = new Double(Math.random() * actions.size()).intValue();
+			String action = actions.get(actionIndex);
 
 			interaction = new UserInteraction();
 			interaction.setClientid(app);
@@ -106,6 +115,8 @@ public class Main {
 			interaction.setUserid(user);
 
 			interactions.add(interaction);
+			
+			actionPath.add(action);
 		}
 
 		interaction = new UserInteraction();
@@ -120,9 +131,18 @@ public class Main {
 		interaction.setUserid(user);
 
 		interactions.add(interaction);
-		userDateMap.put(user, dateTime.toDate());
-
-		return interactions;
+		userDateMap.put(user, dateTime.toDate());	
+		actionPath.add("Logout");
+				
+		SessionPath sessionPath = new SessionPath();
+		sessionPath.setCorrelationid(correlationId.toString());
+		sessionPath.setDateTime(dateTime.toDate());
+		sessionPath.setForward_path(String.join(ACTION_SEPARATOR, actionPath));
+		sessionPath.setReverse_path(String.join(ACTION_SEPARATOR, Lists.reverse(actionPath)));
+		sessionPath.setUserid(user);
+		
+		
+		return new SessionDetails(sessionPath, interactions);
 	}
 
 	private List<String> userAgents = Arrays.asList(
@@ -133,7 +153,6 @@ public class Main {
 	private List<String> apps = Arrays.asList("mobilefx", "mobilefx", "mobilefx", "desktop ui", "tablet research",
 			"tablet research", "iphone banking", "android banking", "mobile trading");
 	
-	private List<String> actions = Arrays.asList("tradeview", "news", "portfolio", "p and l", "charting",
-			"advanced charting", "advanced charting", "advanced charting", "news", "news", "landing page",
-			"preferences", "tradeview", "tradeview", "tradeview", "tradeview", "tradeview");
+	private List<String> actions = Arrays.asList("balance", "news", "portfolio", "P&L", "charting",
+			"news", "news", "landing_page", "preferences", "current_account" );
 }

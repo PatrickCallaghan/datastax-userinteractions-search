@@ -3,19 +3,29 @@ create keyspace if not exists datastax WITH replication = {'class': 'SimpleStrat
 use datastax;
 
 create table if not exists user_interactions(
-id uuid,
-clientid text,
 correlationid text,
+userid text,
 date timestamp,
+id uuid,
 details text,
 event_type text,
 user_agent text,
 user_agent_filterd text,
-userid text,
+clientid text,
 reference text,
-PRIMARY KEY (id)
+PRIMARY KEY (userid, correlationid, date)
+);
+
+create table if not exists session_paths(
+correlationid text,
+userid text,
+date timestamp,
+forward_path text,
+resverse_path text,
+PRIMARY KEY (correlationid, date)
 );
 
 create search index on user_interactions;
 
 truncate user_interactions;
+

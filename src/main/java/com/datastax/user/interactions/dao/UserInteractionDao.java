@@ -10,6 +10,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
+import com.datastax.user.interactions.model.SessionPath;
 import com.datastax.user.interactions.model.UserInteraction;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -19,6 +20,7 @@ public class UserInteractionDao {
 	private Session session;
 
 	private Mapper<UserInteraction> mapper;
+	private Mapper<SessionPath> pathMapper;
 
 	public UserInteractionDao(String[] contactPoints) {
 
@@ -26,6 +28,7 @@ public class UserInteractionDao {
 		this.session = cluster.connect();
 
 		this.mapper = new MappingManager(this.session).mapper(UserInteraction.class);
+		this.pathMapper = new MappingManager(this.session).mapper(SessionPath.class);
 	}
 
 	public void insertUserInteraction(List<UserInteraction> userInteractions) {
@@ -35,6 +38,11 @@ public class UserInteractionDao {
 		for (UserInteraction userInteraction : userInteractions) {
 			
 			futures.add(mapper.saveAsync(userInteraction));
-		}		
+		}	
+	}
+
+	public void insertSessionPath(SessionPath sessionPath) {
+		
+		pathMapper.save(sessionPath);
 	}
 }
