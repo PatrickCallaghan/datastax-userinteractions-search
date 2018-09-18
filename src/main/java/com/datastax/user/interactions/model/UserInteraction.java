@@ -28,8 +28,6 @@ public class UserInteraction {
 	private String user_agent_filterd;
 	private UUID id;
 	private String reference;
-	private String forward_path;
-	private String reverse_path;
 	
 	public UserInteraction(){
 		
@@ -115,19 +113,4 @@ public class UserInteraction {
 		this.reference = reference;
 	}
 
-	public String getReverse_path() {
-		return reverse_path;
-	}
-
-	public void setReverse_path(String reverse_path) {
-		this.reverse_path = reverse_path;
-	}
-
-	public String getForward_path() {
-		return forward_path;
-	}
-
-	public void setForward_path(String forward_path) {
-		this.forward_path = forward_path;
-	}	
 }

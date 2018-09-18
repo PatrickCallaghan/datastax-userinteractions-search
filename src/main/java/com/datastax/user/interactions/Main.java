@@ -16,14 +16,15 @@ import com.datastax.demo.utils.PropertyHelper;
 import com.datastax.user.interactions.dao.UserInteractionDao;
 import com.datastax.user.interactions.model.SessionDetails;
 import com.datastax.user.interactions.model.SessionPath;
+import com.datastax.user.interactions.model.SessionPathGlobal;
 import com.datastax.user.interactions.model.UserInteraction;
 import com.google.common.collect.Lists;
 
 public class Main {
 
 	private static final String ACTION_SEPARATOR = "-";
-	private static final String USER_VISITS = "1000000";
-	private static final String NO_OF_USERS = "100000";
+	private static final String USER_VISITS = "100000000";
+	private static final String NO_OF_USERS = "10000000";
 
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
@@ -49,6 +50,17 @@ public class Main {
     		SessionDetails sessionDetails = createRandomUserInteraction(noOfUsers);
     		dao.insertUserInteraction(sessionDetails.getInteractions());
     		dao.insertSessionPath(sessionDetails.getSessionPath());
+    		
+    		String path = sessionDetails.getSessionPath().getForward_path();
+    		
+    		SessionPathGlobal globalPath = dao.getGlobalPath(sessionDetails.getSessionPath().getUserid());
+    		if (globalPath==null){
+    			
+    			globalPath = new SessionPathGlobal(sessionDetails.getSessionPath().getUserid(), sessionDetails.getSessionPath().getDateTime(), path);
+    		}else{
+    			globalPath.setPath( globalPath.getPath() + ACTION_SEPARATOR + path);
+    		}
+    		dao.updateSessionPathGlobal(globalPath);    		
     		    		
     		if ((i+1)%10000 ==0){
     			logger.info("Processed " + (i+1) + " users visits.");

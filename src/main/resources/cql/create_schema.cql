@@ -21,11 +21,21 @@ correlationid text,
 userid text,
 date timestamp,
 forward_path text,
-resverse_path text,
+reverse_path text,
 PRIMARY KEY (correlationid, date)
 );
 
+create table if not exists session_paths_global(
+userid text,
+updated timestamp,
+path text,
+PRIMARY KEY (userid)
+);
+
+
 create search index on user_interactions;
+create search index on session_paths;
+create search index on session_paths_global;
 
 truncate user_interactions;
 
