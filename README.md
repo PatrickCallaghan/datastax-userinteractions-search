@@ -57,15 +57,19 @@ For Spark, run the following in a spark shell to find counts of different attrib
 
 	val results = csc.sql("SELECT * from datastax_user_interactions_demo.user_interaction");
 
-New Queries based on session path 
+##New Queries based on session path 
+
+To start the webserver run 
+
+	mvn jetty:run
 
 Find sessions that started like 
 
-	select * from datastax.session_paths where forward_path like '"F1 F2 F3"';
+	select * from datastax.session_paths where forward_path like '"F001 F002 F003"';
 	
 Find sessions that ended like 
 
-	select * from datastax.session_paths where reverse_path like '"Logout F3"';
+	select * from datastax.session_paths where reverse_path like '"Logout F003"';
 	
 Get a distinct list of all the paths in each of the sessions
 
@@ -73,34 +77,41 @@ Get a distinct list of all the paths in each of the sessions
 	
 Proximity Search 
 
-	select * from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A3\"~2"}';
+	select * from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A001 A003\"~2"}';
 	
 Find all customers who followed a workflow 
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A2 A3\""}';	
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A001 A002 A003\""}';	
 	
 Find all customers who followed a workflow but haven't gone into a Branch
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A2 A3\" NOT path:BRANCH"}';
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A001 A002 A003\" NOT path:BRANCH"}';
 
 Find all sessions that have a certain event 
 
-	select count(*) from datastax.session_paths where forward_path like '"A1"';
+	select count(*) from datastax.session_paths where forward_path like '"A001"';
 	
-	select * from datastax.session_paths where forward_path like '"A1"';
+	select * from datastax.session_paths where forward_path like '"A001"';
 
 Find all incomplete journeys
 
-	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B2 B3\" NOT forward_path:\"B2 B3 B4\""}';
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B002 B003\" NOT forward_path:\"B002 B003 B004\""}';
 	
 Find all incomplete journeys in the last day
 
-	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B2 B3\" NOT forward_path:\"B2 B3 B4\"", "fq":"date:[NOW-1HOUR TO *]"}';
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B002 B003\" NOT forward_path:\"B002 B003 B004\"", "fq":"date:[NOW-1HOUR TO *]"}';
 	
-How many people when to a branch with 20 steps of selecting preferences
+How many people when to a branch with 20 steps of selecting A001
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 B1\"~20"}';
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A001 BRANCH\"~20"}';
 	 
+Group count journeys with a session for particular channel eg group count all journeys from F001 to F023
+
+	http://localhost:8080/datastax-userinteractions-search/rest/analysis-session/F001/F023	 
+	 
+Group count journeys across channels eg group count all journeys from A001 to C001 
+
+	http://localhost:8080/datastax-userinteractions-search/rest/analysis/A001/C001
 
 Using Curl we can find the distinct number of users 
 

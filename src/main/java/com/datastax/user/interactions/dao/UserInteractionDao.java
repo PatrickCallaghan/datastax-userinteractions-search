@@ -72,9 +72,9 @@ public class UserInteractionDao {
 		return globalMapper.get(userId);
 	}
 
-	public List<String> getAllSessionFromAToB(String from, String to) {
+	public List<String> getAllJourneysWithinSession(String from, String to) {
 
-		String select = "select * from datastax.session_paths WHERE solr_query = '{\"q\":\"forward_path:\\\"%s %s\\\"~3\", \"fq\":\"date:[NOW-15MINUTE TO *]\"}';";
+		String select = "select * from datastax.session_paths WHERE solr_query = '{\"q\":\"forward_path:\\\"%s %s\\\"~3\", \"fq\":\"date:[NOW-2HOUR TO *]\"}';";
 		String cql = String.format(select, from, to);
 		logger.info(cql);
 
@@ -91,7 +91,7 @@ public class UserInteractionDao {
 			Row row = iter.next();
 
 			String path = row.getString("forward_path");
-			if (path.indexOf(from) < path.indexOf(to)) {
+			if (path.indexOf(from+" ") < path.indexOf(to+" ")) {
 
 				paths.add(getPathSubString(from, to, path));
 			}
@@ -100,11 +100,40 @@ public class UserInteractionDao {
 		return paths;
 	}
 
-	private String getPathSubString(String from, String to, String path) {
-		String pathSubString = path.substring(0, path.lastIndexOf(to) - 1);
+	public List<String> getAllJourneys(String from, String to) {
 
-		pathSubString = pathSubString.substring(pathSubString.lastIndexOf(from));
-		return pathSubString + " " + to;
+		String select = "select * from datastax.session_paths_global WHERE solr_query = '{\"q\":\"path:\\\"%s %s\\\"~3\"}';";
+		String cql = String.format(select, from, to);
+		logger.info(cql);
+
+		ResultSet rs = session.execute(cql);
+		List<String> paths = new ArrayList<String>();
+
+		Iterator<Row> iter = rs.iterator();
+		while (iter.hasNext()) {
+
+			if (rs.getAvailableWithoutFetching() == 10 && !rs.isFullyFetched()) {
+				rs.fetchMoreResults(); // this is asynchronous
+			}
+
+			Row row = iter.next();
+
+			String path = row.getString("path");
+			if (path.indexOf(from+" ") < path.indexOf(to+" ")) {
+
+				paths.add(getPathSubString(from, to, path));
+			}
+		}
+
+		return paths;
+	}
+	
+	
+	private String getPathSubString(String from, String to, String path) {
+		String pathSubString = path.substring(0, path.lastIndexOf(to));
+
+		pathSubString = pathSubString.substring(pathSubString.lastIndexOf(from+" "));
+		return pathSubString.trim() + " " + to;
 	}
 	
 	

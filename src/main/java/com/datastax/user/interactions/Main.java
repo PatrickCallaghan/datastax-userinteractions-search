@@ -119,7 +119,7 @@ public class Main {
 			dateTime = dateTime.plusSeconds(new Double(Math.random() * 60).intValue());
 
 			int actionIndex = new Double(Math.random() * 50).intValue();
-			String action = actionPrefix + actionIndex;
+			String action = actionPrefix + String.format("%03d",actionIndex);
 
 			interaction = new UserInteraction();
 			interaction.setClientid(app);

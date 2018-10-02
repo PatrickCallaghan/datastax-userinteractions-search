@@ -14,26 +14,26 @@ public class TestService {
 		
 		MessageService service = MessageService.getInstance();
 		
-		service.getForwardAnalysis("A2", "A40");
+		service.getForwardAnalysisWithinSession("F001", "F023");
 		
 	}
 	
 	@Test
 	public void testPathSubString(){
 		
-		String pathSubString = this.getPathSubString("A1", "A5", "A3 A9 A1 A7 A6 A5 A13");
+		String pathSubString = this.getPathSubString("A001", "A005", "A003 A009 A001 A007 A006 A005 A013");
 		
-		assertEquals("A1 A7 A6 A5", pathSubString);
+		assertEquals("A001 A007 A006 A005", pathSubString);
 		
-		pathSubString = this.getPathSubString("A1", "A5", "A3 A9 A1 A1 A1 A7 A6 A5 A13");
-		assertEquals("A1 A7 A6 A5", pathSubString);
+		pathSubString = this.getPathSubString("A001", "A005", "A003 A009 A001 A007 A006 A005 A013");
+		assertEquals("A001 A007 A006 A005", pathSubString);
 	}
 	
 	private String getPathSubString(String from, String to, String path) {
 		String pathSubString = path.substring(0, path.lastIndexOf(to) - 1);
 
 		pathSubString = pathSubString.substring(pathSubString.lastIndexOf(from));
-		return pathSubString + " " + to;
+		return pathSubString.trim() + " " + to;
 	}
 }
 
