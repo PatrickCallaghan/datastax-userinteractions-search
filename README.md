@@ -61,11 +61,11 @@ New Queries based on session path
 
 Find sessions that started like 
 
-	select * from datastax.session_paths where forward_path like '"Login news balance preferences"';
+	select * from datastax.session_paths where forward_path like '"F1 F2 F3"';
 	
 Find sessions that ended like 
 
-	select * from datastax.session_paths where reverse_path like '"Logout news balance preferences"';
+	select * from datastax.session_paths where reverse_path like '"Logout F3"';
 	
 Get a distinct list of all the paths in each of the sessions
 
@@ -73,33 +73,33 @@ Get a distinct list of all the paths in each of the sessions
 	
 Proximity Search 
 
-	select * from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news\"~2"}';
+	select * from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A3\"~2"}';
 	
 Find all customers who followed a workflow 
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news balance preferences\""}';	
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A2 A3\""}';	
 	
 Find all customers who followed a workflow but haven't gone into a Branch
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news balance preferences\" NOT path:BRANCH"}';
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 A2 A3\" NOT path:BRANCH"}';
 
 Find all sessions that have a certain event 
 
-	select count(*) from datastax.session_paths where forward_path like '"preferences"';
+	select count(*) from datastax.session_paths where forward_path like '"A1"';
 	
-	select * from datastax.session_paths where forward_path like '"preferences"';
+	select * from datastax.session_paths where forward_path like '"A1"';
 
 Find all incomplete journeys
 
-	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\""}';
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B2 B3\" NOT forward_path:\"B2 B3 B4\""}';
 	
 Find all incomplete journeys in the last day
 
-	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\"", "fq":"date:[NOW-1DAY TO *]"}';
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"B2 B3\" NOT forward_path:\"B2 B3 B4\"", "fq":"date:[NOW-1HOUR TO *]"}';
 	
 How many people when to a branch with 20 steps of selecting preferences
 
-	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"preferences BRANCH\"~20"}';
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"A1 B1\"~20"}';
 	 
 
 Using Curl we can find the distinct number of users 

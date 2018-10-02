@@ -3,9 +3,6 @@ package com.datastax.user.interactions.dao;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,22 +39,33 @@ public class UserInteractionDao {
 
 	public void insertUserInteraction(List<UserInteraction> userInteractions) {
 
-		List<ListenableFuture<Void>> futures = new ArrayList(userInteractions.size());
+		try {
+			List<ListenableFuture<Void>> futures = new ArrayList(userInteractions.size());
 
-		for (UserInteraction userInteraction : userInteractions) {
+			for (UserInteraction userInteraction : userInteractions) {
 
-			futures.add(mapper.saveAsync(userInteraction));
+				futures.add(mapper.saveAsync(userInteraction));
+			}
+		} catch (Exception e) {
+
 		}
 	}
 
 	public void insertSessionPath(SessionPath sessionPath) {
+		try {
+			pathMapper.save(sessionPath);
+		} catch (Exception e) {
 
-		pathMapper.save(sessionPath);
+		}
 	}
 
 	public void updateSessionPathGlobal(SessionPathGlobal sessionPathGlobal) {
+		try {
 
-		globalMapper.save(sessionPathGlobal);
+			globalMapper.save(sessionPathGlobal);
+		} catch (Exception e) {
+
+		}
 	}
 
 	public SessionPathGlobal getGlobalPath(String userId) {
@@ -66,8 +74,8 @@ public class UserInteractionDao {
 
 	public List<String> getAllSessionFromAToB(String from, String to) {
 
-		String select = "select * from datastax.session_paths WHERE solr_query = '{\"q\":\"forward_path:\\\"%s %s\\\"~5\", \"fq\":\"date:[NOW-5MINUTE TO *]\"}';";
-		String cql = String.format(select,from, to);
+		String select = "select * from datastax.session_paths WHERE solr_query = '{\"q\":\"forward_path:\\\"%s %s\\\"~3\", \"fq\":\"date:[NOW-15MINUTE TO *]\"}';";
+		String cql = String.format(select, from, to);
 		logger.info(cql);
 
 		ResultSet rs = session.execute(cql);
@@ -75,7 +83,7 @@ public class UserInteractionDao {
 
 		Iterator<Row> iter = rs.iterator();
 		while (iter.hasNext()) {
-			
+
 			if (rs.getAvailableWithoutFetching() == 10 && !rs.isFullyFetched()) {
 				rs.fetchMoreResults(); // this is asynchronous
 			}
@@ -85,11 +93,19 @@ public class UserInteractionDao {
 			String path = row.getString("forward_path");
 			if (path.indexOf(from) < path.indexOf(to)) {
 
-				String pathSubString = path.substring(path.indexOf(from), path.indexOf(to) - 1);
-				paths.add(from + " " + pathSubString + " " + to);
+				paths.add(getPathSubString(from, to, path));
 			}
 		}
 
 		return paths;
 	}
+
+	private String getPathSubString(String from, String to, String path) {
+		String pathSubString = path.substring(0, path.lastIndexOf(to) - 1);
+
+		pathSubString = pathSubString.substring(pathSubString.lastIndexOf(from));
+		return pathSubString + " " + to;
+	}
+	
+	
 }
