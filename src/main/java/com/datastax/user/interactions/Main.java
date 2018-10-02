@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 
 public class Main {
 
-	private static final String ACTION_SEPARATOR = "-";
+	private static final String ACTION_SEPARATOR = " ";
 	private static final String USER_VISITS = "100000000";
-	private static final String NO_OF_USERS = "10000000";
+	private static final String NO_OF_USERS = "1000000";
 
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 
@@ -90,6 +90,10 @@ public class Main {
 			dateTime = new DateTime();
 		}
 
+		if (Math.random() > .99){
+			return getRandomBranchVisit(user);
+		}
+		
 		UUID correlationId = UUID.randomUUID();
 
 		UserInteraction interaction = new UserInteraction();
@@ -153,6 +157,36 @@ public class Main {
 		sessionPath.setReverse_path(String.join(ACTION_SEPARATOR, Lists.reverse(actionPath)));
 		sessionPath.setUserid(user);
 		
+		
+		return new SessionDetails(sessionPath, interactions);
+	}
+
+	private SessionDetails getRandomBranchVisit(String user) {
+		
+		UUID correlationId = UUID.randomUUID();
+		List<UserInteraction> interactions = new ArrayList<UserInteraction>();
+		List<String> actionPath = new ArrayList<String>();
+		
+		UserInteraction interaction = new UserInteraction();
+		interaction.setId(UUID.randomUUID());
+		interaction.setClientid("BRANCH");
+		interaction.setCorrelationid("");
+		interaction.setDateTime(dateTime.toDate());
+		interaction.setDetails("");
+		interaction.setEvent_type("");		
+		interaction.setReference("");
+		interaction.setUser_agent("");
+		interaction.setUserid(user);
+
+		interactions.add(interaction);
+		actionPath.add("BRANCH");
+		
+		SessionPath sessionPath = new SessionPath();
+		sessionPath.setCorrelationid(correlationId.toString());
+		sessionPath.setDateTime(dateTime.toDate());
+		sessionPath.setForward_path(String.join(ACTION_SEPARATOR, actionPath));
+		sessionPath.setReverse_path(String.join(ACTION_SEPARATOR, Lists.reverse(actionPath)));
+		sessionPath.setUserid(user);
 		
 		return new SessionDetails(sessionPath, interactions);
 	}

@@ -37,5 +37,16 @@ create search index on user_interactions;
 create search index on session_paths;
 create search index on session_paths_global;
 
+
+ALTER SEARCH INDEX SCHEMA ON datastax.user_interactions ADD types.fieldtype[@class='org.apache.solr.schema.TextField', @name='MyTextField'] WITH '{"analyzer":{"tokenizer":{"class":"solr.StandardFilterFactory"}, "filter":[{"class": "solr.LowerCaseFilterFactory"}]}}';
+ALTER SEARCH INDEX SCHEMA ON datastax.session_paths ADD types.fieldtype[@class='org.apache.solr.schema.TextField', @name='MyTextField'] WITH '{"analyzer":{"tokenizer":{"class":"solr.StandardFilterFactory"}, "filter":[{"class": "solr.LowerCaseFilterFactory"}]}}';
+ALTER SEARCH INDEX SCHEMA ON datastax.session_paths_global ADD types.fieldtype[@class='org.apache.solr.schema.TextField', @name='MyTextField'] WITH '{"analyzer":{"tokenizer":{"class":"solr.StandardFilterFactory"}, "filter":[{"class": "solr.LowerCaseFilterFactory"}]}}';
+
+ALTER SEARCH INDEX SCHEMA ON datastax.user_interactions SET field[@name='content']@type='MyTextField';
+
+ALTER SEARCH INDEX SCHEMA ON datastax.session_paths SET field[@name='forward_path']@type='MyTextField';
+ALTER SEARCH INDEX SCHEMA ON datastax.session_paths SET field[@name='reverse_path']@type='MyTextField';
+ALTER SEARCH INDEX SCHEMA ON datastax.session_paths_global SET field[@name='path']@type='MyTextField';
+
 truncate user_interactions;
 

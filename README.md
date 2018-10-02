@@ -6,10 +6,6 @@ To create the a single node cluster with replication factor of 1 for standard lo
 
     mvn clean compile exec:java -Dexec.mainClass="com.datastax.demo.SchemaSetup"
     
-Once the schema is created, create the Solr core for it using dsetool.
-
-	dsetool create_core datastax_user_interactions_demo.user_interaction generateResources=true    
-    
 To run the insert
 
 	mvn exec:java -Dexec.mainClass="com.datastax.user.interactions.Main"
@@ -65,16 +61,37 @@ New Queries based on session path
 
 Find sessions that started like 
 
-	select * from datastax.session_paths where forward_path like 'Login-news-balance-preferences%';
+	select * from datastax.session_paths where forward_path like '"Login news balance preferences"';
 	
 Find sessions that ended like 
 
-	select * from datastax.session_paths where reverse_path like 'Logout-news-balance-preferences%';
+	select * from datastax.session_paths where reverse_path like '"Logout news balance preferences"';
 	
 Get a distinct list of all the paths in each of the sessions
 
 	select * from datastax.session_paths where solr_query='{"q":"*:*","useFieldCache":true,"facet":{"field":"forward_path"}}';
 	
+Proximity Search 
+
+	select * from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news\"~2"}';
+	
+Find all customers who followed a workflow 
+
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news balance preferences\""}';	
+	
+Find all customers who followed a workflow but haven't gone into a Branch
+
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"Login news balance preferences\" NOT path:BRANCH"}';
+
+Find all sessions that have a certain event 
+
+	select count(*) from datastax.session_paths where forward_path like '"preferences"';
+	
+	select * from datastax.session_paths where forward_path like '"preferences"';
+
+Find all incomplete journeys
+
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\""}'; 
 
 Using Curl we can find the distinct number of users 
 
