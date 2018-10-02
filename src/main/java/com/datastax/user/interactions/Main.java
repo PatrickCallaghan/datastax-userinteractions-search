@@ -94,6 +94,8 @@ public class Main {
 			return getRandomBranchVisit(user);
 		}
 		
+		String actionPrefix = preFixes.get(new Double(Math.random() * preFixes.size()).intValue());
+		
 		UUID correlationId = UUID.randomUUID();
 
 		UserInteraction interaction = new UserInteraction();
@@ -116,8 +118,8 @@ public class Main {
 
 			dateTime = dateTime.plusSeconds(new Double(Math.random() * 60).intValue());
 
-			int actionIndex = new Double(Math.random() * actions.size()).intValue();
-			String action = actions.get(actionIndex);
+			int actionIndex = new Double(Math.random() * 50).intValue();
+			String action = actionPrefix + actionIndex;
 
 			interaction = new UserInteraction();
 			interaction.setClientid(app);
@@ -199,6 +201,6 @@ public class Main {
 	private List<String> apps = Arrays.asList("mobilefx", "mobilefx", "mobilefx", "desktop ui", "tablet research",
 			"tablet research", "iphone banking", "android banking", "mobile trading");
 	
-	private List<String> actions = Arrays.asList("balance", "news", "portfolio", "P&L", "charting",
-			"news", "news", "landing_page", "preferences", "current_account" );
+	private List<String> preFixes = Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "J", "K");
+	
 }

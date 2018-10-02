@@ -91,11 +91,25 @@ Find all sessions that have a certain event
 
 Find all incomplete journeys
 
-	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\""}'; 
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\""}';
+	
+Find all incomplete journeys in the last day
+
+	select * from datastax.session_paths WHERE solr_query = '{"q":"forward_path:\"Login news\" NOT forward_path:\"Login news balance\"", "fq":"date:[NOW-1DAY TO *]"}';
+	
+How many people when to a branch with 20 steps of selecting preferences
+
+	select count(*) from datastax.session_paths_global WHERE solr_query = '{"q":"path:\"preferences BRANCH\"~20"}';
+	 
 
 Using Curl we can find the distinct number of users 
 
 	curl -d "q=*:*&rows=0&useFieldCache=true&json.facet={ x:'unique(userid)' }" http://localhost:8983/solr/datastax.user_interactions/select
 	
-		
 
+		
+		
+		
+		
+		
+		
